@@ -5,10 +5,6 @@ import android.content.Context;
 import android.content.pm.ConfigurationInfo;
 import android.content.res.TypedArray;
 import android.graphics.PixelFormat;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -26,7 +22,7 @@ import javax.microedition.khronos.opengles.GL10;
  *
  * @author Sławomir Czerwiński
  */
-public class GlimpseHoloView extends GLSurfaceView implements SensorEventListener {
+public class GlimpseHoloView extends GLSurfaceView {
 
 	private class GlimpseHoloRenderer implements Renderer {
 
@@ -79,8 +75,7 @@ public class GlimpseHoloView extends GLSurfaceView implements SensorEventListene
 			mvpMatrixHandle = program.getUniformLocation("u_MVPMatrix");
 			vertexPositionHandle = program.getAttribLocation("a_VertexPosition");
 			textureCoordinatesHandle = program.getAttribLocation("a_TextureCoordinates");
-			accelerometerXHandle = program.getUniformLocation("u_AccelerometerX");
-			accelerometerYHandle = program.getUniformLocation("u_AccelerometerY");
+			accelerometerCoordinatesHandle = program.getUniformLocation("u_AccelerometerCoordinates");
 
 			backgroundTextureHandle = program.getUniformLocation("u_BackgroundTexture");
 			hologramTextureHandle = program.getUniformLocation("u_HologramTexture");
@@ -110,8 +105,7 @@ public class GlimpseHoloView extends GLSurfaceView implements SensorEventListene
 
 			verticesBuffer.position(0);
 			textureCoordinatesBuffer.position(0);
-			GLES20.glUniform1f(accelerometerXHandle, accelerometerX);
-			GLES20.glUniform1f(accelerometerYHandle, accelerometerY);
+			GLES20.glUniform3fv(accelerometerCoordinatesHandle, 1, accelerometer.getVector(), 0);
 			GLES20.glVertexAttribPointer(vertexPositionHandle, 3, GLES20.GL_FLOAT, false, 3 * BYTES_PER_FLOAT, verticesBuffer);
 			GLES20.glEnableVertexAttribArray(vertexPositionHandle);
 			GLES20.glVertexAttribPointer(textureCoordinatesHandle, 2, GLES20.GL_FLOAT, false, 2 * BYTES_PER_FLOAT, textureCoordinatesBuffer);
@@ -133,8 +127,7 @@ public class GlimpseHoloView extends GLSurfaceView implements SensorEventListene
 		private int mvpMatrixHandle;
 		private int vertexPositionHandle;
 		private int textureCoordinatesHandle;
-		private int accelerometerXHandle;
-		private int accelerometerYHandle;
+		private int accelerometerCoordinatesHandle;
 
 		private int backgroundTextureHandle;
 		private int hologramTextureHandle;
@@ -155,6 +148,7 @@ public class GlimpseHoloView extends GLSurfaceView implements SensorEventListene
 
 	private void init(Context context) {
 		this.context = context;
+		if (isInEditMode()) return;
 		final ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 		final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
 		final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000;
@@ -167,9 +161,7 @@ public class GlimpseHoloView extends GLSurfaceView implements SensorEventListene
 		} else {
 			throw new UnsupportedOperationException("OpenGL ES 2.0 not supported.");
 		}
-		if (isInEditMode()) return;
-		sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-		accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		accelerometer = new Accelerometer(context);
 	}
 
 	public GlimpseHoloView(Context context, AttributeSet attrs) {
@@ -187,44 +179,15 @@ public class GlimpseHoloView extends GLSurfaceView implements SensorEventListene
 	}
 
 	@Override
-	public void onSensorChanged(SensorEvent event) {
-		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-			if (counter >= MAX_COUTER) {
-				counter = 0;
-			}
-			xArray[counter] = event.values[0];
-			yArray[counter] = event.values[1];
-			zArray[counter] = event.values[2];
-			counter ++;
-			float x = 0.0f;
-			float y = 0.0f;
-			float z = 0.0f;
-			for (int i = 0; i < MAX_COUTER; i++) {
-				x += xArray[i];
-				y += yArray[i];
-				z += zArray[i];
-			}
-			float value = (float) Math.sqrt(x * x + y * y + z * z);
-			accelerometerX = x / value;
-			accelerometerY = y / value;
-			accelerometerZ = z / value;
-		}
-	}
-
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-	}
-
-	@Override
 	public void onResume() {
 		super.onResume();
-		sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_FASTEST);
+		accelerometer.register();
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		sensorManager.unregisterListener(this);
+		accelerometer.unregister();
 	}
 
 	private Context context;
@@ -232,15 +195,5 @@ public class GlimpseHoloView extends GLSurfaceView implements SensorEventListene
 	private String vertexShaderSource;
 	private String fragmentShaderSource;
 
-	private SensorManager sensorManager;
-	private Sensor accelerometer;
-
-	private static final int MAX_COUTER = 20;
-	private float xArray[] = new float[MAX_COUTER];
-	private float yArray[] = new float[MAX_COUTER];
-	private float zArray[] = new float[MAX_COUTER];
-	private int counter;
-	private float accelerometerX;
-	private float accelerometerY;
-	private float accelerometerZ;
+	private Accelerometer accelerometer;
 }
