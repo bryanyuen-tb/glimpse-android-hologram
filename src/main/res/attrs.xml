@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<declare-styleable name="GlimpseHoloView">
+		<attr name="vertexShader" format="reference" />
+		<attr name="fragmentShader" format="reference" />
+
+		<attr name="backgroundTexture" format="reference" />
+		<attr name="hologramTexture" format="reference" />
+		<attr name="holoMapTexture" format="reference" />
+	</declare-styleable>
+
+</resources>
