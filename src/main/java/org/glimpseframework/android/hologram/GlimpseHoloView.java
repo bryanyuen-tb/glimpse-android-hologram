@@ -13,6 +13,8 @@ import android.util.AttributeSet;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.EnumMap;
+import java.util.Map;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -68,30 +70,40 @@ public class GlimpseHoloView extends GLSurfaceView {
 		}
 
 		private void initShaders() {
-			ShaderProgram program = new ShaderProgram(
-					new Shader(Shader.ShaderType.VERTEX_SHADER, vertexShaderSource),
-					new Shader(Shader.ShaderType.FRAGMENT_SHADER, fragmentShaderSource));
+			Map<Shader.ShaderType, String> shaderSources =
+					new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
+			shaderSources.put(Shader.ShaderType.VERTEX_SHADER, vertexShaderSource);
+			shaderSources.put(Shader.ShaderType.FRAGMENT_SHADER, fragmentShaderSource);
+
+			program = new ShaderProgram(shaderSources);
+			program.build();
 
 			mvpMatrixHandle = program.getUniformLocation("u_MVPMatrix");
 			vertexPositionHandle = program.getAttribLocation("a_VertexPosition");
 			textureCoordinatesHandle = program.getAttribLocation("a_TextureCoordinates");
 			accelerometerCoordinatesHandle = program.getUniformLocation("u_AccelerometerCoordinates");
 
-			backgroundTextureHandle = program.getUniformLocation("u_BackgroundTexture");
-			hologramTextureHandle = program.getUniformLocation("u_HologramTexture");
-			holoMapTextureHandle = program.getUniformLocation("u_HoloMapTexture");
-
 			program.use();
 		}
 
 		private void initTextures() {
-			backgroundTexture = new Texture(context, R.drawable.background);
-			hologramTexture = new Texture(context, R.drawable.hologram);
-			holoMapTexture = new Texture(context, R.drawable.holo_map);
+			Map<Texture.TextureType, Integer> textureResources =
+					new EnumMap<Texture.TextureType, Integer>(Texture.TextureType.class);
+			textureResources.put(Texture.TextureType.BACKGROUND_TEXTURE, R.drawable.background);
+			textureResources.put(Texture.TextureType.HOLOGRAM_TEXTURE, R.drawable.hologram);
+			textureResources.put(Texture.TextureType.HOLO_MAP_TEXTURE, R.drawable.holo_map);
 
-			backgroundTexture.bind(Texture.TextureType.BACKGROUND_TEXTURE, backgroundTextureHandle);
-			hologramTexture.bind(Texture.TextureType.HOLOGRAM_TEXTURE, hologramTextureHandle);
-			holoMapTexture.bind(Texture.TextureType.HOLO_MAP_TEXTURE, holoMapTextureHandle);
+			for (Texture.TextureType textureType : Texture.TextureType.values()) {
+				textures.put(textureType, new Texture(context, textureType, textureResources.get(textureType)));
+			}
+
+			for (Texture.TextureType textureType : Texture.TextureType.values()) {
+				textures.get(textureType).generate();
+			}
+
+			for (Texture.TextureType textureType : Texture.TextureType.values()) {
+				textures.get(textureType).bind(program);
+			}
 		}
 
 		@Override
@@ -120,18 +132,14 @@ public class GlimpseHoloView extends GLSurfaceView {
 		private final FloatBuffer textureCoordinatesBuffer;
 
 		private float[] mvpMatrix = new float[16];
-		private Texture backgroundTexture;
-		private Texture hologramTexture;
-		private Texture holoMapTexture;
+		private ShaderProgram program;
+		private Map<Texture.TextureType, Texture> textures =
+				new EnumMap<Texture.TextureType, Texture>(Texture.TextureType.class);
 
 		private int mvpMatrixHandle;
 		private int vertexPositionHandle;
 		private int textureCoordinatesHandle;
 		private int accelerometerCoordinatesHandle;
-
-		private int backgroundTextureHandle;
-		private int hologramTextureHandle;
-		private int holoMapTextureHandle;
 	}
 
 	public GlimpseHoloView(Context context) {
