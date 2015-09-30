@@ -1,6 +1,7 @@
 package org.glimpseframework.android.hologram;
 
 import android.opengl.GLES20;
+import android.util.Log;
 
 import java.nio.FloatBuffer;
 import java.util.EnumMap;
@@ -45,13 +46,18 @@ class ShaderProgram {
 			GLES20.glAttachShader(programHandle, shaders.get(Shader.ShaderType.VERTEX_SHADER).getHandle());
 			GLES20.glAttachShader(programHandle, shaders.get(Shader.ShaderType.FRAGMENT_SHADER).getHandle());
 			GLES20.glLinkProgram(programHandle);
-			final int[] linkStatus = new int[1];
-			GLES20.glGetProgramiv(programHandle, GLES20.GL_LINK_STATUS, linkStatus, 0);
-			if (linkStatus[0] == 0) {
-				String error = GLES20.glGetProgramInfoLog(programHandle);
-				delete();
-				throw new IllegalStateException("Could not link a shader program: " + error);
-			}
+			verifyLinkStatus();
+		}
+	}
+
+	private void verifyLinkStatus() {
+		final int[] linkStatus = new int[1];
+		GLES20.glGetProgramiv(programHandle, GLES20.GL_LINK_STATUS, linkStatus, 0);
+		if (linkStatus[0] == 0) {
+			String errorMessage = GLES20.glGetProgramInfoLog(programHandle);
+			delete();
+			Log.e(LOG_TAG, "Could not link shaders into a program: " + errorMessage);
+			throw new IllegalStateException("Could not link a shader program: " + errorMessage);
 		}
 	}
 
@@ -92,6 +98,8 @@ class ShaderProgram {
 	public void drawVertices(FloatBuffer buffer) {
 		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, buffer.remaining());
 	}
+
+	private static final String LOG_TAG = "ShaderProgram";
 
 	private static final int BYTES_PER_FLOAT = 4;
 
