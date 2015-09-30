@@ -1,4 +1,6 @@
-# GlimpseFramework Android Hologram
+# GlimpseFramework Hologram View
+
+GlimpseFramework Hologram View provides an easy way of placing 2D holograms in Android applications.
 
 ## Usage
 
@@ -39,3 +41,13 @@ And finally, add these features to your `AndroidManifest.xml`:
 <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="true" />
 ```
 
+### Using Custom Textures
+
+To apply custom textures, add the following attributes to your `GlimpseHoloView`:
+```xml
+<org.glimpseframework.android.hologram.GlimpseHoloView
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	app:backgroundTexture="@drawable/my_background"
+	app:hologramTexture="@drawable/my_hologram"
+	app:holoMapTexture="@drawable/my_holo_map"/>
+```
