@@ -14,9 +14,8 @@ import javax.microedition.khronos.opengles.GL10;
  */
 class GlimpseHoloRenderer implements GLSurfaceView.Renderer {
 
-	public GlimpseHoloRenderer(ShaderProgram program, TexturesStore texturesStore, Accelerometer accelerometer) {
-		this.program = program;
-		this.texturesStore = texturesStore;
+	public GlimpseHoloRenderer(GlimpseHoloConfig config, Accelerometer accelerometer) {
+		this.config = config;
 		this.accelerometer = accelerometer;
 	}
 
@@ -34,11 +33,13 @@ class GlimpseHoloRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private void initShaders() {
+		program = config.createShaderProgram();
 		program.build();
 		program.use();
 	}
 
 	private void initTextures() {
+		texturesStore = config.createTexturesStore();
 		texturesStore.generateTextures();
 		texturesStore.bindTextures(program);
 	}
@@ -60,6 +61,8 @@ class GlimpseHoloRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private final GlimpseHoloScene scene = new GlimpseHoloScene();
+
+	private GlimpseHoloConfig config;
 
 	private ShaderProgram program;
 	private TexturesStore texturesStore;
