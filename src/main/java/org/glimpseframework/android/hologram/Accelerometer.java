@@ -18,7 +18,7 @@ class Accelerometer implements SensorEventListener {
 	public Accelerometer(Context context) {
 		sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
 		accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		Arrays.fill(vectors, Vector.NULL_VECTOR);
+		Arrays.fill(vectorHistory, Vector.NULL_VECTOR);
 	}
 
 	public void register() {
@@ -33,8 +33,8 @@ class Accelerometer implements SensorEventListener {
 	public void onSensorChanged(SensorEvent event) {
 		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 			index %= SMOOTHNESS;
-			vectors[index++] = new Vector(event.values[0], event.values[1], event.values[2]);
-			vector = Vector.sum(vectors);
+			vectorHistory[index++] = new Vector(event.values[0], event.values[1], event.values[2]);
+			vector = Vector.sum(vectorHistory);
 		}
 	}
 
@@ -42,8 +42,8 @@ class Accelerometer implements SensorEventListener {
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 	}
 
-	public float[] getVector() {
-		return vector.getCoordinates();
+	public Vector getVector() {
+		return vector;
 	}
 
 	private static final int SMOOTHNESS = 20;
@@ -51,7 +51,7 @@ class Accelerometer implements SensorEventListener {
 	private SensorManager sensorManager;
 	private Sensor accelerometer;
 
-	private Vector[] vectors = new Vector[SMOOTHNESS];
+	private Vector[] vectorHistory = new Vector[SMOOTHNESS];
 	private int index;
 
 	private Vector vector;
