@@ -2,6 +2,7 @@ package org.glimpseframework.android.hologram;
 
 import android.opengl.GLES20;
 
+import java.nio.FloatBuffer;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -11,6 +12,19 @@ import java.util.Map;
  * @author Sławomir Czerwiński
  */
 class ShaderProgram {
+
+	public enum Parameter {
+		MVP_MATRIX("u_MVPMatrix"),
+		VERTEX_POSITION("a_VertexPosition"),
+		TEXTURE_COORDINATES("a_TextureCoordinates"),
+		ACCELEROMETER_COORDINATES("u_AccelerometerCoordinates");
+
+		Parameter(String name) {
+			this.name = name;
+		}
+
+		private String name;
+	}
 
 	public ShaderProgram(Map<Shader.ShaderType, String> shaderSources) {
 		for (Shader.ShaderType shaderType : Shader.ShaderType.values()) {
@@ -47,6 +61,9 @@ class ShaderProgram {
 
 	public void delete() {
 		GLES20.glDeleteProgram(programHandle);
+		for (Shader.ShaderType shaderType : Shader.ShaderType.values()) {
+			shaders.get(shaderType).delete();
+		}
 	}
 
 	public int getUniformLocation(String name) {
@@ -56,6 +73,27 @@ class ShaderProgram {
 	public int getAttribLocation(String name) {
 		return GLES20.glGetAttribLocation(programHandle, name);
 	}
+
+	public void pushVector(Parameter parameter, Vector vector) {
+		GLES20.glUniform3fv(getUniformLocation(parameter.name), 1, vector.getCoordinates(), 0);
+	}
+
+	public void pushMatrix(Parameter parameter, float[] matrix) {
+		GLES20.glUniformMatrix4fv(getUniformLocation(parameter.name), 1, false, matrix, 0);
+	}
+
+	public void pushVertexAttribArray(Parameter parameter, FloatBuffer buffer, int vectorSize) {
+		int handle = getAttribLocation(parameter.name);
+		buffer.position(0);
+		GLES20.glVertexAttribPointer(handle, vectorSize, GLES20.GL_FLOAT, false, vectorSize * BYTES_PER_FLOAT, buffer);
+		GLES20.glEnableVertexAttribArray(handle);
+	}
+
+	public void drawVertices(FloatBuffer buffer) {
+		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, buffer.remaining());
+	}
+
+	private static final int BYTES_PER_FLOAT = 4;
 
 	private final Map<Shader.ShaderType, Shader> shaders =
 			new EnumMap<Shader.ShaderType, Shader>(Shader.ShaderType.class);
