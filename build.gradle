@@ -8,6 +8,7 @@ buildscript {
 }
 
 apply plugin: 'com.android.library'
+apply plugin: 'checkstyle'
 apply plugin: 'maven'
 
 def groupId = "org.glimpseframework"
@@ -37,7 +38,22 @@ android {
 			debuggable false
 		}
 	}
+
+	repositories {
+		jcenter()
+	}
 }
+
+task checkstyleMain(type: Checkstyle) {
+	configFile = new File("config/checkstyle", "checkstyle.xml")
+	source 'src/main'
+	include '**/*.java'
+	exclude '**/gen/**'
+	classpath = files()
+	ignoreFailures false
+}
+
+project.tasks.check.dependsOn(checkstyleMain)
 
 task javaDocs(type: Javadoc) {
 	source = android.sourceSets.main.java.srcDirs
