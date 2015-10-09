@@ -8,17 +8,25 @@ buildscript {
 }
 
 apply plugin: 'com.android.library'
+apply plugin: 'maven'
+
+def groupId = "org.glimpseframework"
+def artifactId = "glimpse-android-hologram"
+def version = "0.1-SNAPSHOT"
+
+def releaseDir = "${buildDir}/release/${version}"
 
 android {
-	compileSdkVersion 19
+	compileSdkVersion 23
 	buildToolsVersion "23.0.1"
 
 	defaultConfig {
 		minSdkVersion 18
-		targetSdkVersion 19
+		targetSdkVersion 23
 		versionCode 1
-		versionName "0.1-SNAPSHOT"
+		versionName version
 	}
+
 	buildTypes {
 		debug {
 			debuggable true
@@ -29,4 +37,33 @@ android {
 			debuggable false
 		}
 	}
+}
+
+task javaDocs(type: Javadoc) {
+	source = android.sourceSets.main.java.srcDirs
+	classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javaDocsJar(type: Jar, dependsOn: javaDocs) {
+	classifier = 'javadoc'
+	from javaDocs.destinationDir
+}
+
+task sourcesJar(type: Jar) {
+	classifier = 'sources'
+	from android.sourceSets.main.java.srcDirs
+}
+
+uploadArchives {
+	repositories.mavenDeployer {
+		pom.groupId = groupId
+		pom.artifactId = artifactId
+		pom.version = version
+		repository(url: "file://${releaseDir}")
+	}
+}
+
+artifacts {
+	archives sourcesJar
+	archives javaDocsJar
 }
