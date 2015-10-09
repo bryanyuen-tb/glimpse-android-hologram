@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/GlimpseFramework/glimpse-android-hologram.svg?branch=master)](https://travis-ci.org/GlimpseFramework/glimpse-android-hologram)
+
 # GlimpseFramework Hologram View
 
 GlimpseFramework Hologram View provides an easy way of placing 2D holograms in Android applications.
