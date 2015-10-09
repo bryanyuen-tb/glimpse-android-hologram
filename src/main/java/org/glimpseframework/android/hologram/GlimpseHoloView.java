@@ -7,16 +7,27 @@ import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 
 /**
- * Glimpse Hologram view for Android application.
+ * GlimpseFramework Hologram view for Android application.
  *
  * @author Sławomir Czerwiński
  */
 public class GlimpseHoloView extends GLSurfaceView {
 
+	/**
+	 * Standard {@link android.view.View View} constructor.
+	 *
+	 * @param context The context the hologram view is running in.
+	 */
 	public GlimpseHoloView(Context context) {
 		this(context, null);
 	}
 
+	/**
+	 * Standard {@link android.view.View View} constructor used when an XML tag is inflating the view.
+	 *
+	 * @param context The context the hologram view is running in.
+	 * @param attrs The attributes of the XML tag that is inflating the view.
+	 */
 	public GlimpseHoloView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		config = new GlimpseHoloConfig(context, attrs);
@@ -47,12 +58,22 @@ public class GlimpseHoloView extends GLSurfaceView {
 		setRenderer(new GlimpseHoloRenderer(config, accelerometer));
 	}
 
+	/**
+	 * Informs the hologram view that the activity is resumed.
+	 *
+	 * @see GLSurfaceView#onResume()
+	 */
 	@Override
 	public void onResume() {
 		super.onResume();
 		accelerometer.register();
 	}
 
+	/**
+	 * Informs the hologram view that the activity is paused.
+	 *
+	 * @see GLSurfaceView#onResume()
+	 */
 	@Override
 	public void onPause() {
 		super.onPause();
