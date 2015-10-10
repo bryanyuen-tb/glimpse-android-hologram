@@ -12,8 +12,7 @@ class Shader {
 
 	enum ShaderType {
 		VERTEX_SHADER(GLES20.GL_VERTEX_SHADER),
-		FRAGMENT_SHADER(GLES20.GL_FRAGMENT_SHADER),
-		;
+		FRAGMENT_SHADER(GLES20.GL_FRAGMENT_SHADER);
 
 		ShaderType(int type) {
 			this.type = type;

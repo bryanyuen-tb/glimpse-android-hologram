@@ -17,8 +17,7 @@ class Texture {
 	public enum TextureType {
 		BACKGROUND_TEXTURE(GLES20.GL_TEXTURE0, "u_BackgroundTexture"),
 		HOLOGRAM_TEXTURE(GLES20.GL_TEXTURE1, "u_HologramTexture"),
-		HOLO_MAP_TEXTURE(GLES20.GL_TEXTURE2, "u_HoloMapTexture"),
-		;
+		HOLO_MAP_TEXTURE(GLES20.GL_TEXTURE2, "u_HoloMapTexture");
 
 		TextureType(int texture, String name) {
 			this.texture = texture;
