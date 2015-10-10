@@ -42,6 +42,10 @@ android {
 	repositories {
 		jcenter()
 	}
+
+	lintOptions {
+		disable 'AllowBackup', 'IconDensities', 'IconMissingDensityFolder'
+	}
 }
 
 task checkstyleMain(type: Checkstyle) {
