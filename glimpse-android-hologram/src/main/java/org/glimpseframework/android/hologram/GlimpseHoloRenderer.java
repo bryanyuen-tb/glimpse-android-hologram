@@ -54,12 +54,10 @@ class GlimpseHoloRenderer implements GLSurfaceView.Renderer {
 	public void onDrawFrame(GL10 gl) {
 		GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
 
-		if (accelerometer.isVectorInitialized) {
-			program.pushVector(ShaderProgram.Parameter.ACCELEROMETER_COORDINATES, accelerometer.getVector());
-			program.pushMatrix(ShaderProgram.Parameter.MVP_MATRIX, mvpMatrix);
+		program.pushVector(ShaderProgram.Parameter.ACCELEROMETER_COORDINATES, accelerometer.getVector());
+		program.pushMatrix(ShaderProgram.Parameter.MVP_MATRIX, mvpMatrix);
 
-			scene.draw(program);
-		}
+		scene.draw(program);
 	}
 
 	private final GlimpseHoloScene scene = new GlimpseHoloScene();
