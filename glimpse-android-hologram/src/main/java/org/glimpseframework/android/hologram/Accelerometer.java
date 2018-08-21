@@ -19,6 +19,8 @@ class Accelerometer implements SensorEventListener {
 		sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
 		accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		Arrays.fill(vectorHistory, Vector.NULL_VECTOR);
+		vectorHistory[0] = new Vector(0, 0, 0);
+		vector = Vector.sum(vectorHistory);
 		register();
 	}
 
