@@ -30,13 +30,14 @@ public class GlimpseHoloView extends GLSurfaceView {
 	 */
 	public GlimpseHoloView(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		accelerometer = new Accelerometer(context);
 		config = new GlimpseHoloConfig(context, attrs);
 		initView(context);
 	}
 
 	private void initView(Context context) {
 		if (!isInEditMode()) {
-			accelerometer = new Accelerometer(context);
+//			accelerometer = new Accelerometer(context);
 			if (isGLES20Supported(context)) {
 				initGLES();
 			} else {
@@ -66,7 +67,7 @@ public class GlimpseHoloView extends GLSurfaceView {
 	@Override
 	public void onResume() {
 		super.onResume();
-		accelerometer.register();
+//		accelerometer.register();
 	}
 
 	/**
